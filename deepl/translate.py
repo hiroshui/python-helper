@@ -119,11 +119,13 @@ class DeeplHelper:
 
 
 if __name__ == '__main__':
+    deepl = DeeplHelper()
+    
     if len(sys.argv) < 2:
-        print("Error: Input file name not provided.")
-        sys.exit(1)
+        print("Warning: Input file name not provided. Will ask for translation text.")
+        deepl.run()
+        sys.exit(0)
 
     input_file = sys.argv[1]
     output_file = input_file.split(".")[0] + "_en.txt"
-    deepl = DeeplHelper()
     deepl.translate_file(input_file, output_file, "EN")
