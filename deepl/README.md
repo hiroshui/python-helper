@@ -10,11 +10,15 @@ Please store the token plain inside a new file that you need to create called 't
 
 ## Usage
 
-To use the script, simply run the `suggest_translate.py` file in your terminal or IDE. You will be prompted to enter the target language and text to parse. The script will then send a translation request to the DeepL API and print the translated text and detected source language.
+To use the script, simply run the `translate.py` file in your terminal or IDE. 
 
-```python
-python translate.py
-```
+If you do not specify any parameters, you will be prompted to enter the target language and text to parse. The script will then send a translation request to the DeepL API and print the translated text and detected source language.
+
+If you speficy a file as a parameter, then this file will be translated to EN (english). Be aware that only plain text files are currently supported..
+
+`python translate.py`
+
+`python translate.py test.txt`
 
 ## Configuration
 

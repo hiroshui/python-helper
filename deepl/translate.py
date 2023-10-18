@@ -1,7 +1,7 @@
 import requests
 import os
 from os.path import exists
-import docx
+import sys
 
 
 class DeeplHelper:
@@ -48,7 +48,7 @@ class DeeplHelper:
 
     def translate_file(self, input_file, output_file, target_lang):
         """
-        Translates a file line by line and writes the translated output to a new file.
+        Translates a plain text file line by line and writes the translated output to a new file.
 
         Parameters:
         - input_file (str): The name of the input file to translate.
@@ -58,82 +58,29 @@ class DeeplHelper:
         # Get the API token from a file
         token = self.check_for_file()
 
-        # Get the file extension
-        file_ext = os.path.splitext(input_file)[1]
-
         # Open the input and output files
-        with open(input_file, "r" + ("b" if file_ext == ".csv" else "")) as f_in, open(output_file, "w") as f_out:
+        with open(input_file, "r") as f_in, open(output_file, "w") as f_out:
             # Translate each line of the input file and write the translated output to the output file
-            if file_ext == ".txt":
-                for line in f_in:
-                    # Define the data to send in the request
-                    data_to_send = {
-                        "auth_key": token,
-                        "target_lang": target_lang,
-                        "text": line.strip()
-                    }
+            for line in f_in:
+                # Define the data to send in the request
+                data_to_send = {
+                    "auth_key": token,
+                    "target_lang": target_lang,
+                    "text": line.strip()
+                }
 
-                    # Send the translation request to the API
-                    response = self.send_translation_request(data_to_send)
+                # Send the translation request to the API
+                response = self.send_translation_request(data_to_send)
 
-                    # Parse the response JSON
-                    r_json = response.json()
+                # Parse the response JSON
+                r_json = response.json()
 
-                    # Extract the translation from the response
-                    try:
-                        translation = r_json["translations"][0]["text"]
-                        f_out.write(f"{translation}\n")
-                    except (KeyError, IndexError):
-                        print("Error: Invalid response from API")
-            elif file_ext == ".csv":
-                import csv
-                reader = csv.reader(f_in)
-                writer = csv.writer(f_out)
-                for row in reader:
-                    # Define the data to send in the request
-                    data_to_send = {
-                        "auth_key": token,
-                        "target_lang": target_lang,
-                        "text": row[0].strip()
-                    }
-
-                    # Send the translation request to the API
-                    response = self.send_translation_request(data_to_send)
-
-                    # Parse the response JSON
-                    r_json = response.json()
-
-                    # Extract the translation from the response
-                    try:
-                        translation = r_json["translations"][0]["text"]
-                        writer.writerow([translation])
-                    except (KeyError, IndexError):
-                        print("Error: Invalid response from API")
-            elif file_ext == ".docx":
-                doc = docx.Document(f_in)
-                for para in doc.paragraphs:
-                    # Define the data to send in the request
-                    data_to_send = {
-                        "auth_key": token,
-                        "target_lang": target_lang,
-                        "text": para.text.strip()
-                    }
-
-                    # Send the translation request to the API
-                    response = self.send_translation_request(data_to_send)
-
-                    # Parse the response JSON
-                    r_json = response.json()
-
-                    # Extract the translation from the response
-                    try:
-                        translation = r_json["translations"][0]["text"]
-                        f_out.write(f"{translation}\n")
-                    except (KeyError, IndexError):
-                        print("Error: Invalid response from API")
-            else:
-                print(f"Error: Unsupported file type '{file_ext}'")
-
+                # Extract the translation from the response
+                try:
+                    translation = r_json["translations"][0]["text"]
+                    f_out.write(f"{translation}\n")
+                except (KeyError, IndexError):
+                    print("Error: Invalid response from API")
 
     def run(self):
         """
@@ -172,5 +119,11 @@ class DeeplHelper:
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Error: Input file name not provided.")
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    output_file = input_file.split(".")[0] + "_en.txt"
     deepl = DeeplHelper()
-    deepl.translate_file("test.docx", "test_en.docx", "EN")
+    deepl.translate_file(input_file, output_file, "EN")
