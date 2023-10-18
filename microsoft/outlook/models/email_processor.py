@@ -16,10 +16,11 @@ class EmailProcessor:
 
     Attributes:
     - config_file (str): The path to the configuration file.
-    -   setUnread (bool): Whether to mark the original message as read after responding.
-    -   processMails (bool): Whether to export unread emails to a CSV file.
+    -   set_unread (bool): Whether to mark the original message as read after responding.
+    -   save_mails (bool): Whether to export unread emails to a CSV file.
     -   sleep_timer (int): The number of seconds to sleep between email checks.
     -   sound_file (str): The path to the sound file to play when a new email is received.
+    -   csv_filename (str): The prefix of the CSV file to export unread emails to.
     - logger (logging.Logger): The logger object for logging messages.
     - outlook (win32com.client.Dispatch): The Outlook application object.
     - inbox (win32com.client.CDispatch): The default inbox folder.
@@ -49,10 +50,11 @@ class EmailProcessor:
         PROFILE_NAME = config.get('GLOBAL', 'profile_name')
 
         # Get the setUnread and processMails values from the config file
-        self.setUnread = config.getboolean(PROFILE_NAME, 'setUnread')
-        self.processMails = config.getboolean(PROFILE_NAME, 'processMails')
+        self.set_unread = config.getboolean(PROFILE_NAME, 'set_unread')
+        self.save_mails = config.getboolean(PROFILE_NAME, 'save_mails')
         self.sleep_timer = config.getint(PROFILE_NAME, 'sleep_timer')
         self.sound_file = config.get(PROFILE_NAME, 'sound_file')
+        self.csv_filename = config.get(PROFILE_NAME, 'csv_filename')
 
     def respond_to_emails(self):
         """
@@ -95,7 +97,7 @@ class EmailProcessor:
                     self.logger.error(f"Error sending response to {sender_email}: {e}")
                     print(f"Error sending response to {sender_email}: {e}")
 
-                if self.setUnread:
+                if self.set_unread:
                     # Mark the original message as read
                     try:
                         message.Unread = False
@@ -131,7 +133,7 @@ class EmailProcessor:
         df = pd.DataFrame(data, columns=['Sender', 'Subject', 'Body'])
 
         date_string = datetime.datetime.now().strftime("%Y-%m-%d")
-        filename = f"emails_{date_string}.csv"
+        filename = f"{self.csv_filename}_{date_string}.csv"
         try:
             df.to_csv(filename, index=False)
         except Exception as e:
@@ -146,7 +148,7 @@ class EmailProcessor:
             self.logger.info("Checking for new emails...")
             print("Checking for new emails...")
             pythoncom.CoInitialize()
-            if self.processMails:
+            if self.save_mails:
                 self.export_unread_emails_to_csv()
             self.respond_to_emails()
             print(f"About to sleep for {self.sleep_timer} seconds...")
