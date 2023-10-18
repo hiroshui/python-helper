@@ -7,7 +7,8 @@ import pandas as pd
 import win32com.client as win32
 import winsound
 import configparser
-from enums import OutlookImportance, OutlookItems
+
+from models.enums import OutlookImportance, OutlookItems
 
 class EmailProcessor:
     """
@@ -45,7 +46,7 @@ class EmailProcessor:
         config.read(config_file)
 
          # Define a variable for the profile name to read from the config file
-        PROFILE_NAME = config.getboolean('GLOBAL', 'profile_name')
+        PROFILE_NAME = config.get('GLOBAL', 'profile_name')
 
         # Get the setUnread and processMails values from the config file
         self.setUnread = config.getboolean(PROFILE_NAME, 'setUnread')
