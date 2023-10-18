@@ -9,7 +9,6 @@ import winsound
 import configparser
 from enums import OutlookImportance, OutlookItems
 
-
 class EmailProcessor:
     """
     A class for processing emails in Outlook.

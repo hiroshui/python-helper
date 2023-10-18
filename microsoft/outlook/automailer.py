@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Create a file handler and set the logging level
-file_handler = logging.FileHandler('autoresponder.log')
+file_handler = logging.FileHandler('automailer.log')
 file_handler.setLevel(logging.INFO)
 
 # Create a stream handler and set the logging level
