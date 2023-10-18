@@ -15,13 +15,14 @@ class EmailProcessor:
 
     Attributes:
     - config_file (str): The path to the configuration file.
+    -   setUnread (bool): Whether to mark the original message as read after responding.
+    -   processMails (bool): Whether to export unread emails to a CSV file.
+    -   sleep_timer (int): The number of seconds to sleep between email checks.
+    -   sound_file (str): The path to the sound file to play when a new email is received.
     - logger (logging.Logger): The logger object for logging messages.
     - outlook (win32com.client.Dispatch): The Outlook application object.
     - inbox (win32com.client.CDispatch): The default inbox folder.
     - messages (win32com.client.CDispatch): The collection of messages in the inbox.
-    - setUnread (bool): Whether to mark the original message as read after responding.
-    - processMails (bool): Whether to export unread emails to a CSV file.
-    - sleep_timer (int): The number of seconds to sleep between email checks.
     """
 
     def __init__(self, config_file: str, logger : logging.Logger):
@@ -33,20 +34,24 @@ class EmailProcessor:
         - logger (logging.Logger): The logger object for logging messages.
         """
         self.logger = logger
-        
+
         self.outlook = win32.Dispatch("Outlook.Application")
         self.inbox = self.outlook.GetNamespace("MAPI").GetDefaultFolder(6)
         self.messages = self.inbox.Items
         self.messages.Sort("[ReceivedTime]", True)
-        
+
         # Read the config file
         config = configparser.ConfigParser()
         config.read(config_file)
 
+         # Define a variable for the profile name to read from the config file
+        PROFILE_NAME = config.getboolean('GLOBAL', 'profile_name')
+
         # Get the setUnread and processMails values from the config file
-        self.setUnread = config.getboolean('DEFAULT', 'setUnread')
-        self.processMails = config.getboolean('DEFAULT', 'processMails')
-        self.sleep_timer = config.getint('DEFAULT', 'sleep_timer')
+        self.setUnread = config.getboolean(PROFILE_NAME, 'setUnread')
+        self.processMails = config.getboolean(PROFILE_NAME, 'processMails')
+        self.sleep_timer = config.getint(PROFILE_NAME, 'sleep_timer')
+        self.sound_file = config.get(PROFILE_NAME, 'sound_file')
 
     def respond_to_emails(self):
         """
@@ -96,15 +101,15 @@ class EmailProcessor:
                     except Exception as e:
                         self.logger.error(f"Error marking message as read: {e}")
                         print(f"Error marking message as read: {e}")
-                        
+
                 # Play a sound
-                sound_file="rap.wav"
+                sound_file=self.sound_file
                 if os.path.exists(sound_file):
-                    print("about to print sound")
-                    winsound.PlaySound("rap.wav", winsound.SND_FILENAME)
+                    print(f"about to print sound {sound_file}")
+                    winsound.PlaySound(sound_file, winsound.SND_FILENAME)
                 else:
-                    print(f"Error: sound file {sound_file} not found!")
-                    #winsound.PlaySound("SystemAsterisk", winsound.SND_ALIAS)
+                    print(f"Warning: sound file {sound_file} not found! Will use default sound.")
+                    winsound.PlaySound("SystemAsterisk", winsound.SND_ALIAS)
 
     def export_unread_emails_to_csv(self):
         """

@@ -10,7 +10,7 @@ The file also sets up a logger to record application events to a log file and th
 
 import logging
 
-from email_processor import EmailProcessor
+from models.email_processor import EmailProcessor
 
 # Create a logger and set the logging level
 logger = logging.getLogger(__name__)
