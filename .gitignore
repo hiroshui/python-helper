@@ -1,3 +1,4 @@
 .vscode
 token
 *.mp4
+apis/openai/config.ini
