@@ -1,7 +1,7 @@
 import os
 import time
 from time import sleep
-import pygetwindow as gw
+#import pygetwindow as gw
 import pyautogui
 
 import os
@@ -71,11 +71,11 @@ class TeamsApp:
         """
         raise Exception("Not implemented")
         # check if Teams is already opened and focused
-        teams_window = gw.getWindowsWithTitle('Microsoft Teams')
-        if len(teams_window) > 0:
-            teams_window[0].activate()
-            return True
-        return False
+        #teams_window = gw.getWindowsWithTitle('Microsoft Teams')
+        #if len(teams_window) > 0:
+        #    teams_window[0].activate()
+        #    return True
+        #return False
 
     def find_button(self, button_name):
         """
