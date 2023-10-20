@@ -2,3 +2,4 @@
 token
 *.mp4
 apis/openai/config.ini
+apis/win/microsoft/outlook/config.ini
