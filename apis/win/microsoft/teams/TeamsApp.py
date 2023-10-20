@@ -94,7 +94,9 @@ class TeamsApp:
             A tuple containing the x and y coordinates of the button's center, or None if the button could not be found.
         """
         button_path = self.config_values['Runtime']['button_path']
-        button = pyautogui.locateCenterOnScreen(f"{button_path}/{button_name}.png")
+        button_fullpath = f"{button_path}/{button_name}.png"
+        print(f"Looking for button: {button_fullpath}")
+        button = pyautogui.locateCenterOnScreen(button_fullpath)
         if button is None:
             print("Could not find the button on the screen.")
             return None
