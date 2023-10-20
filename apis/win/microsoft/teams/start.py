@@ -66,5 +66,8 @@ if __name__ == "__main__":
     startup.print_config()
     app = TeamsApp(startup.get_config())
     
-    app.open()
-    app.click_button_by_name("dots")
+    app.exec_special_cmd("go_to_settings")
+    
+    #app.open()
+    #app.click_button_by_name("dots")
+    #app.click_button_by_name("settings")

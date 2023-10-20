@@ -1,12 +1,14 @@
 import os
 import time
 from time import sleep
+from enum import Enum
 #import pygetwindow as gw
 import pyautogui
 
 import os
 from time import sleep
 import pyautogui
+
 
 class TeamsApp:
     """
@@ -40,6 +42,7 @@ class TeamsApp:
 
     config_values = None
     pause = 0
+    special_cmds = None
  
     def __init__(self, config_values : dict):
         """
@@ -52,6 +55,7 @@ class TeamsApp:
         """
         self.config_values = config_values
         self.pause = int(self.config_values['Settings']['pause'])
+        self.special_cmds = SpecialCommands(self)
 
     def open(self):
         """
@@ -128,3 +132,37 @@ class TeamsApp:
         if button is None:
             return
         self.click_button(button)
+        
+    def exec_special_cmd(self, cmd_name):
+        """
+        Executes the specified special command.
+
+        Parameters:
+        -----------
+        cmd_name : SpecialCommands
+            The name of the special command to execute.
+        """
+        try:
+            cmd = self.special_cmds[cmd_name]
+        except KeyError as ke:
+            print(f"Unknown special command: {cmd_name}, error: {ke}")
+            return False
+    
+        if cmd == SpecialCommands.GO_TO_SETTINGS:
+            self.special_cmds.go_to_settins()
+        
+        return True
+        
+class SpecialCommands(Enum):
+        GO_TO_SETTINGS = 1
+        # Add more special commands here
+
+class SpecialCommands:
+    app = None
+    def __init__(self, app : TeamsApp):
+        self.app = app
+
+    def go_to_settins(self):
+        self.app.open()
+        self.app.click_button_by_name("dots")
+        self.app.click_button_by_name("settings")
