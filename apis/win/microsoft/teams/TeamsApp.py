@@ -39,6 +39,7 @@ class TeamsApp:
     """
 
     config_values = None
+    pause = 0
  
     def __init__(self, config_values : dict):
         """
@@ -50,6 +51,7 @@ class TeamsApp:
             A dictionary containing configuration values for the TeamsApp instance.
         """
         self.config_values = config_values
+        self.pause = int(self.config_values['Settings']['pause'])
 
     def open(self):
         """
@@ -58,7 +60,7 @@ class TeamsApp:
         teams_path = self.config_values['Runtime']['local_user_path'] + self.config_values['Settings']['teams_app_path']
         print(f"Starting Teams in {teams_path}")
         os.startfile(f"{teams_path}")
-        sleep(self.config_values['Settings']['pause'])
+        sleep(self.pause)
      
     def is_open(self):
         """
@@ -109,7 +111,7 @@ class TeamsApp:
         """
         pyautogui.moveTo(button)
         pyautogui.click()
-        sleep(self.config_values['Settings']['pause'])
+        sleep(self.pause)
     
     def click_button_by_name(self, button_name):
         """
