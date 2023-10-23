@@ -1,20 +1,14 @@
 import os             
-import time
-from time import sleep
-from datetime import datetime
 import configparser
+
 from TeamsApp import TeamsApp
 
 class Startup:
-    config_values = None
+    config_values = {}
 
     # initialize the Startup class without any parameters
     def __init__(self):
         self.config_values = {}
-
-    def run(self):
-        pass
-        #tbd: add code for startup
 
     # now we will initialize the config based on the given path
     def initialize_config(self, path='config.ini'):
@@ -59,6 +53,8 @@ class Startup:
                 print(f"{option} = {value}")
 
 if __name__ == "__main__":
+    # Set the DISPLAY environment variable to an empty string
+    
     startup = Startup()
     startup.initialize_config()
     startup.initialize_runtime_variables()
@@ -67,7 +63,7 @@ if __name__ == "__main__":
     app = TeamsApp(startup.get_config())
     
     app.exec_special_cmd("go_to_settings")
-    
+
     #app.open()
     #app.click_button_by_name("dots")
     #app.click_button_by_name("settings")

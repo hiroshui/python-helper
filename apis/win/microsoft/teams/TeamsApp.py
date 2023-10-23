@@ -2,12 +2,12 @@ import os
 import time
 from time import sleep
 from enum import Enum
+from typing import Any
 #import pygetwindow as gw
 import pyautogui
 
-import os
-from time import sleep
-import pyautogui
+class SpecialCommandsEnum(Enum):
+    GO_TO_SETTINGS = 1
 
 
 class TeamsApp:
@@ -142,27 +142,41 @@ class TeamsApp:
         cmd_name : SpecialCommands
             The name of the special command to execute.
         """
-        try:
-            cmd = self.special_cmds[cmd_name]
-        except KeyError as ke:
-            print(f"Unknown special command: {cmd_name}, error: {ke}")
-            return False
-    
-        if cmd == SpecialCommands.GO_TO_SETTINGS:
-            self.special_cmds.go_to_settins()
         
-        return True
+        cmd_enum = getattr(SpecialCommandsEnum, cmd_name.upper())
         
-class SpecialCommands(Enum):
-        GO_TO_SETTINGS = 1
-        # Add more special commands here
+        return self.special_cmds.execute_special_command(cmd_enum)
+
 
 class SpecialCommands:
     app = None
+        
     def __init__(self, app : TeamsApp):
         self.app = app
-
-    def go_to_settins(self):
+        
+    def go_to_settings(self):
+        print("hello world!")
+        return
         self.app.open()
         self.app.click_button_by_name("dots")
         self.app.click_button_by_name("settings")
+    
+    # Add more methods here for each entry in SpecialCommandsEnum
+    def execute_special_command(self, cmd_name : SpecialCommandsEnum):
+        """
+        Executes the specified special command.
+
+        Parameters:
+        -----------
+        cmd_name : SpecialCommandsEnum
+            The name of the special command to execute.
+        """
+        try:
+            cmd = getattr(self, cmd_name.name.lower())
+        except AttributeError as ae:
+            print(f"Unknown special command: {cmd_name}, error: {ae}")
+            return False
+        cmd()
+        return True
+    
+    # Add more special commands here
