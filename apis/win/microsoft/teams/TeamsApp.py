@@ -42,6 +42,7 @@ class TeamsApp:
 
     config_values = None
     pause = 0
+    initial_delay = 0
     special_cmds = None
  
     def __init__(self, config_values : dict):
@@ -55,6 +56,7 @@ class TeamsApp:
         """
         self.config_values = config_values
         self.pause = int(self.config_values['Settings']['pause'])
+        self.initial_delay = int(self.config_values['Settings']['initial_delay'])
         self.special_cmds = SpecialCommands(self)
 
     def open(self):
@@ -64,7 +66,7 @@ class TeamsApp:
         teams_path = self.config_values['Runtime']['local_user_path'] + self.config_values['Settings']['teams_app_path']
         print(f"Starting Teams in {teams_path}")
         os.startfile(f"{teams_path}")
-        sleep(self.pause)
+        sleep(self.initial_delay)
      
     def is_open(self):
         """
