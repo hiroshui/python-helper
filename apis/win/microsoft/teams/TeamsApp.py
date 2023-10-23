@@ -6,6 +6,9 @@ from typing import Any
 #import pygetwindow as gw
 import pyautogui
 
+from apis.win.microsoft.teams.helper.image_to_str import ImageHelper
+
+
 class SpecialCommandsEnum(Enum):
     GO_TO_SETTINGS = 1
     GO_TO_CALENDAR = 2
@@ -45,6 +48,7 @@ class TeamsApp:
     pause = 0
     initial_delay = 0
     special_cmds = None
+    image_helper = None
  
     def __init__(self, config_values : dict):
         """
@@ -59,6 +63,7 @@ class TeamsApp:
         self.pause = int(self.config_values['Settings']['pause'])
         self.initial_delay = int(self.config_values['Settings']['initial_delay'])
         self.special_cmds = SpecialCommands(self)
+        self.image_helper = ImageHelper(config_values)
 
     def open(self):
         """
@@ -151,8 +156,9 @@ class TeamsApp:
         if button is None:
             return
         self.click_element(button)
-        
-    def locate_textfield(self, textfield_content):
+    
+    # this was implemented using tessaract (https://stackoverflow.com/questions/49101270/move-to-searched-text-on-active-screen-with-pyautogui)
+    def locate_textfield(self, textfield_content, lang = 'eng'):
         """
         Finds the specified textfield on the screen.
 
@@ -166,26 +172,12 @@ class TeamsApp:
         tuple or None
             A tuple containing the x and y coordinates of the textfield's center, or None if the textfield could not be found.
         """
-        textfield = pyautogui.locateCenterOnScreen(textfield_content)
+        textfield = self.image_helper.find_coordinates_text(textfield_content, lang=lang)
+
         if textfield is None:
             print("Could not find the textfield on the screen.")
             return None
         return textfield
-        
-    def exec_special_cmd(self, cmd_name, *args):
-        """
-        Executes the specified special command.
-
-        Parameters:
-        -----------
-        cmd_name : SpecialCommands
-            The name of the special command to execute.
-        """
-        
-        cmd_enum = getattr(SpecialCommandsEnum, cmd_name.upper())
-        
-        return self.special_cmds.execute_special_command(cmd_enum, args=args)
-
 
 class SpecialCommands:
     app = None
@@ -202,10 +194,11 @@ class SpecialCommands:
         self.app.open()
         self.app.click_button_by_name("calendar")
     
-    def create_meeting(self, meeting_name):
+    def create_meeting(self, meeting_name, lang = 'eng'):
         self.app.open()
         self.app.click_button_by_name("calendar")
-        titel_field = self.app.locate_textfield("Title")
+        self.app.click_button_by_name("new_meeting")
+        titel_field = self.app.locate_textfield("Titel", lang=lang)
         self.app.insert_text(titel_field, meeting_name)
     
     # Add more methods here for each entry in SpecialCommandsEnum

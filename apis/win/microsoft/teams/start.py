@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     special_cmds = SpecialCommands(app)
 
-    special_cmds.execute_special_command(SpecialCommandsEnum.CREATE_MEETING,"Test Meeting")
+    special_cmds.execute_special_command(SpecialCommandsEnum.CREATE_MEETING,"Test Meeting", "deu")
 
     #app.exec_special_cmd("create_meeting", "Test Meeting")
 
