@@ -155,8 +155,6 @@ class SpecialCommands:
         self.app = app
         
     def go_to_settings(self):
-        print("hello world!")
-        return
         self.app.open()
         self.app.click_button_by_name("dots")
         self.app.click_button_by_name("settings")
