@@ -8,7 +8,8 @@ import pyautogui
 
 class SpecialCommandsEnum(Enum):
     GO_TO_SETTINGS = 1
-
+    GO_TO_CALENDAR = 2
+    CREATE_MEETING = 3
 
 class TeamsApp:
     """
@@ -33,8 +34,8 @@ class TeamsApp:
     find_button(self, button_name)
         Finds the specified button on the screen.
 
-    click_button(self, button)
-        Clicks the specified button.
+    click_element(self, button)
+        Clicks the specified element.
 
     click_button_by_name(self, button_name)
         Finds and clicks the specified button by name.
@@ -108,17 +109,33 @@ class TeamsApp:
             return None
         return button
     
-    def click_button(self, button):
+    def click_element(self, element):
         """
-        Clicks the specified button.
+        Clicks the specified pygui-element.
 
         Parameters:
         -----------
         button : tuple
-            A tuple containing the x and y coordinates of the button's center.
+            A tuple containing the x and y coordinates of the elements's center.
         """
-        pyautogui.moveTo(button)
+        pyautogui.moveTo(element)
         pyautogui.click()
+        sleep(self.pause)
+        
+    def insert_text(self, element, text):
+        """
+        Inserts text into the specified pygui-element.
+
+        Parameters:
+        -----------
+        element : tuple
+            A tuple containing the x and y coordinates of the elements's center.
+        text : str
+            The text to insert.
+        """
+        pyautogui.moveTo(element)
+        pyautogui.click()
+        pyautogui.write(text)
         sleep(self.pause)
     
     def click_button_by_name(self, button_name):
@@ -133,9 +150,29 @@ class TeamsApp:
         button = self.find_button(button_name)
         if button is None:
             return
-        self.click_button(button)
+        self.click_element(button)
         
-    def exec_special_cmd(self, cmd_name):
+    def locate_textfield(self, textfield_content):
+        """
+        Finds the specified textfield on the screen.
+
+        Parameters:
+        -----------
+        textfield_content : str
+            The content of the textfield to find.
+
+        Returns:
+        --------
+        tuple or None
+            A tuple containing the x and y coordinates of the textfield's center, or None if the textfield could not be found.
+        """
+        textfield = pyautogui.locateCenterOnScreen(textfield_content)
+        if textfield is None:
+            print("Could not find the textfield on the screen.")
+            return None
+        return textfield
+        
+    def exec_special_cmd(self, cmd_name, *args):
         """
         Executes the specified special command.
 
@@ -147,7 +184,7 @@ class TeamsApp:
         
         cmd_enum = getattr(SpecialCommandsEnum, cmd_name.upper())
         
-        return self.special_cmds.execute_special_command(cmd_enum)
+        return self.special_cmds.execute_special_command(cmd_enum, *args)
 
 
 class SpecialCommands:
@@ -160,9 +197,19 @@ class SpecialCommands:
         self.app.open()
         self.app.click_button_by_name("dots")
         self.app.click_button_by_name("settings")
+        
+    def go_to_calendar(self):
+        self.app.open()
+        self.app.click_button_by_name("calendar")
+    
+    def create_meeting(self, meeting_name : str):
+        self.app.open()
+        self.app.click_button_by_name("calendar")
+        titel_field = self.app.locate_textfield("Titel")
+        self.app.insert_text(titel_field, meeting_name)
     
     # Add more methods here for each entry in SpecialCommandsEnum
-    def execute_special_command(self, cmd_name : SpecialCommandsEnum):
+    def execute_special_command(self, cmd_name : SpecialCommandsEnum, *args):
         """
         Executes the specified special command.
 
@@ -176,7 +223,7 @@ class SpecialCommands:
         except AttributeError as ae:
             print(f"Unknown special command: {cmd_name}, error: {ae}")
             return False
-        cmd()
+        cmd(args)
         return True
     
     # Add more special commands here

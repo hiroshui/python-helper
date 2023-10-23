@@ -11,7 +11,6 @@ class Meetings():
     def __init__(self, pause=3, meeting_list=[]):
         self.pause = pause
         self.meeting_list = meeting_list
-        pass
     
     def find_meeting(self, meeting_name) -> (pyPoint | None):
         if meeting_name not in self.meeting_list:
