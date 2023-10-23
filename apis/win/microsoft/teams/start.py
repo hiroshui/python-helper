@@ -1,7 +1,7 @@
 import os             
 import configparser
 
-from TeamsApp import TeamsApp
+from TeamsApp import SpecialCommands, SpecialCommandsEnum, TeamsApp
 
 class Startup:
     config_values = {}
@@ -64,7 +64,11 @@ if __name__ == "__main__":
     
     #app.exec_special_cmd("go_to_settings")
 
-    app.exec_special_cmd("create_meeting", "Test Meeting")
+    special_cmds = SpecialCommands(app)
+
+    special_cmds.execute_special_command(SpecialCommandsEnum.CREATE_MEETING,"Test Meeting")
+
+    #app.exec_special_cmd("create_meeting", "Test Meeting")
 
     #app.open()
     #app.click_button_by_name("dots")

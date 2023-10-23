@@ -184,7 +184,7 @@ class TeamsApp:
         
         cmd_enum = getattr(SpecialCommandsEnum, cmd_name.upper())
         
-        return self.special_cmds.execute_special_command(cmd_enum, *args)
+        return self.special_cmds.execute_special_command(cmd_enum, args=args)
 
 
 class SpecialCommands:
@@ -202,10 +202,10 @@ class SpecialCommands:
         self.app.open()
         self.app.click_button_by_name("calendar")
     
-    def create_meeting(self, meeting_name : str):
+    def create_meeting(self, meeting_name):
         self.app.open()
         self.app.click_button_by_name("calendar")
-        titel_field = self.app.locate_textfield("Titel")
+        titel_field = self.app.locate_textfield("Title")
         self.app.insert_text(titel_field, meeting_name)
     
     # Add more methods here for each entry in SpecialCommandsEnum
@@ -219,11 +219,11 @@ class SpecialCommands:
             The name of the special command to execute.
         """
         try:
-            cmd = getattr(self, cmd_name.name.lower())
+            cmd = getattr(self, cmd_name.name.lower())(*args)
         except AttributeError as ae:
             print(f"Unknown special command: {cmd_name}, error: {ae}")
             return False
-        cmd(args)
+        cmd()
         return True
     
     # Add more special commands here
