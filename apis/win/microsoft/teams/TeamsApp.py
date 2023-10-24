@@ -5,9 +5,12 @@ from enum import Enum
 from typing import Any
 #import pygetwindow as gw
 import pyautogui
+from datetime import datetime, timedelta
 
-from apis.win.microsoft.teams.helper.image_to_str import ImageHelper
-
+#custom imports
+from models.meeting import Meeting
+from helper.image_to_str import ImageHelper
+from helper.window import Window
 
 class SpecialCommandsEnum(Enum):
     GO_TO_SETTINGS = 1
@@ -49,6 +52,7 @@ class TeamsApp:
     initial_delay = 0
     special_cmds = None
     image_helper = None
+    resolution = None
  
     def __init__(self, config_values : dict):
         """
@@ -64,6 +68,7 @@ class TeamsApp:
         self.initial_delay = int(self.config_values['Settings']['initial_delay'])
         self.special_cmds = SpecialCommands(self)
         self.image_helper = ImageHelper(config_values)
+        self.resolution = pyautogui.size()
 
     def open(self):
         """
@@ -114,7 +119,7 @@ class TeamsApp:
             return None
         return button
     
-    def click_element(self, element):
+    def click_element(self, element, clicks=1):
         """
         Clicks the specified pygui-element.
 
@@ -123,11 +128,11 @@ class TeamsApp:
         button : tuple
             A tuple containing the x and y coordinates of the elements's center.
         """
-        pyautogui.moveTo(element)
-        pyautogui.click()
+        #pyautogui.moveTo(element)
+        pyautogui.click(element, clicks=clicks)
         sleep(self.pause)
         
-    def insert_text(self, element, text):
+    def insert_text(self, element, text, clicks=1):
         """
         Inserts text into the specified pygui-element.
 
@@ -138,12 +143,16 @@ class TeamsApp:
         text : str
             The text to insert.
         """
-        pyautogui.moveTo(element)
-        pyautogui.click()
-        pyautogui.write(text)
+        #pyautogui.moveTo(element)
+        pyautogui.click(element, clicks=clicks)
+        for char in text:
+            if char == "@":
+                pyautogui.hotkey("altright","q")
+            else:
+                pyautogui.write(char)
         sleep(self.pause)
     
-    def click_button_by_name(self, button_name):
+    def click_button_by_name(self, button_name, clicks=1):
         """
         Finds and clicks the specified button by name.
 
@@ -155,10 +164,10 @@ class TeamsApp:
         button = self.find_button(button_name)
         if button is None:
             return
-        self.click_element(button)
+        self.click_element(button, clicks=clicks)
     
     # this was implemented using tessaract (https://stackoverflow.com/questions/49101270/move-to-searched-text-on-active-screen-with-pyautogui)
-    def locate_textfield(self, textfield_content, lang = 'eng'):
+    def locate_textfield(self, textfield_content, language, resolution=None):
         """
         Finds the specified textfield on the screen.
 
@@ -172,10 +181,10 @@ class TeamsApp:
         tuple or None
             A tuple containing the x and y coordinates of the textfield's center, or None if the textfield could not be found.
         """
-        textfield = self.image_helper.find_coordinates_text(textfield_content, lang=lang)
+        textfield = self.image_helper.find_coordinates_text(textcontent=textfield_content, language=language, resolution = resolution)
 
         if textfield is None:
-            print("Could not find the textfield on the screen.")
+            print(f"Could not find the textfield {textfield_content} on the screen.")
             return None
         return textfield
 
@@ -194,12 +203,37 @@ class SpecialCommands:
         self.app.open()
         self.app.click_button_by_name("calendar")
     
-    def create_meeting(self, meeting_name, lang = 'eng'):
+    def create_meeting(self, meeting : Meeting, language):       
         self.app.open()
         self.app.click_button_by_name("calendar")
         self.app.click_button_by_name("new_meeting")
-        titel_field = self.app.locate_textfield("Titel", lang=lang)
-        self.app.insert_text(titel_field, meeting_name)
+        
+        window = Window("Neue Besprechung", True)
+        if(window.is_windows_visible() == False):
+            print("Window could not be found")
+            return
+        window.maximize()
+        
+        titel_field = self.app.locate_textfield("hinzufügen", language)
+        self.app.insert_text(titel_field, meeting.name)
+        participant_field = self.app.locate_textfield("Teilnehmer", language)
+        print(participant_field)
+        participant_field = (participant_field[0] + 300, participant_field[1])
+        outerclick = self.app.locate_textfield("aufzeichnen", language)
+        for participant in meeting.attendees:
+            print(f"insert {participant} into participants")
+            self.app.insert_text(participant_field, participant)
+            self.app.click_element(outerclick)
+        date_field = self.app.locate_textfield(time.strftime("%d.%m.%Y"), language)
+        from_field = self.app.locate_textfield((datetime.now() + timedelta(hours=1)).strftime(f"%H:00"), language)
+        until_field = self.app.locate_textfield((datetime.now() + timedelta(hours=1)).strftime(f"%H:30"), language)
+        #self.app.click_element(date_field, 2)
+        self.app.insert_text(date_field, meeting.date, 2)
+        self.app.insert_text(from_field, meeting.time_from)
+        self.app.insert_text(until_field, meeting.time_until)
+        
+        #save_button = self.app.locate_textfield("Senden", language)
+        #self.app.click_element(save_button)
     
     # Add more methods here for each entry in SpecialCommandsEnum
     def execute_special_command(self, cmd_name : SpecialCommandsEnum, *args):
@@ -212,11 +246,9 @@ class SpecialCommands:
             The name of the special command to execute.
         """
         try:
-            cmd = getattr(self, cmd_name.name.lower())(*args)
+            getattr(self, cmd_name.name.lower())(*args)
         except AttributeError as ae:
             print(f"Unknown special command: {cmd_name}, error: {ae}")
             return False
-        cmd()
         return True
-    
-    # Add more special commands here
+

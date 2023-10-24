@@ -3,28 +3,14 @@ import pyautogui
 import time
 
 from pyautogui import Point as pyPoint
+from models.meeting import Meeting
 
 class Meetings():
 
-    meeting_list = None
+    meeting_list = [](Meeting)
     
-    def __init__(self, pause=3, meeting_list=[]):
-        self.pause = pause
-        self.meeting_list = meeting_list
-    
-    def find_meeting(self, meeting_name) -> (pyPoint | None):
-        if meeting_name not in self.meeting_list:
-            raise ValueError("Meeting name not found in meeting list.")
-        
-        # Locate the meeting button on the screen
-        meeting_button = pyautogui.locateCenterOnScreen(meeting_name)
-        if meeting_button is None:
-            print("Could not find the meeting button on the screen.")
-            return None
-        return meeting_button
-    
-    def start_meeting(self, meeting : pyPoint):
-        
+    def start_meeting(self, meeting : Meeting):
+        raise NotImplementedError("This method is not implemented yet.")
         # Click the meeting button
         pyautogui.moveTo(pyPoint)
         pyautogui.click()
@@ -52,8 +38,12 @@ class Meetings():
         pyautogui.click()
         time.sleep(self.pause)
         
-    def add(self, meetingname):
-        pass
+    def add(self, meeting: Meeting):
+        self.meeting_list.append(meeting)
     
-    def remove(self, meetingname):
-        pass
+    def remove(self, meeting: Meeting):
+        self.meeting_list.remove(meeting)
+
+    def remove(self, meetingname: str):
+        meeting = self.meeting_list.find(meetingname)
+        self.meeting_list.remove(meeting)

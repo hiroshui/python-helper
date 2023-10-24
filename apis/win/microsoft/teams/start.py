@@ -2,6 +2,7 @@ import os
 import configparser
 
 from TeamsApp import SpecialCommands, SpecialCommandsEnum, TeamsApp
+from models.meeting import Meeting
 
 class Startup:
     config_values = {}
@@ -65,8 +66,12 @@ if __name__ == "__main__":
     #app.exec_special_cmd("go_to_settings")
 
     special_cmds = SpecialCommands(app)
+    
+    participants = [""]
+    
+    meeting = Meeting("Test Meeting", "25.10.2024", "10:30", "11:00", participants)
 
-    special_cmds.execute_special_command(SpecialCommandsEnum.CREATE_MEETING,"Test Meeting", "deu")
+    special_cmds.execute_special_command(SpecialCommandsEnum.CREATE_MEETING, meeting, "deu")
 
     #app.exec_special_cmd("create_meeting", "Test Meeting")
 
