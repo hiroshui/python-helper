@@ -4,6 +4,9 @@ import pytesseract
 import cv2
 import numpy as np
 
+# This class uses the pytesseract library to find text on the screen for pyautogui
+# You need to install tesseract and the tesseract language packs for this to work
+# Be aware, that this does not work very well with high resolution screens
 class ImageHelper():
     
     config_values = None
@@ -30,6 +33,7 @@ class ImageHelper():
 
         # Find the coordinates of the provided text (text)
         try:
+            #data.to_csv("test.csv", sep=';')
             x, y = data[data['text'] == textcontent]['left'].iloc[0], data[data['text'] == textcontent]['top'].iloc[0]
 
         except IndexError:
